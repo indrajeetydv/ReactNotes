@@ -281,5 +281,313 @@ function ThemedButtonHook() {
 *   You will still use `React.createContext()` and `<MyContext.Provider>` regardless of whether you consume with `<Context.Consumer>` or `useContext`.
 *   For class components, you'd still use `<Context.Consumer>` or `static contextType`.
 
+# React Hooks 
+
+**useState**
 
 
+**useMemo**
+The `useMemo` hook in React is used to memoize expensive calculations so that they are only recomputed when one of the dependencies has changed. This can improve performance by avoiding unnecessary recalculations. You should use `useMemo` when you have a computationally expensive function that doesn't need to run on every render.
+
+```javascript
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+```
+
+---
+
+## What is the `useMemo` hook in React and when should it be used?
+
+### What is `useMemo`?
+
+The `useMemo` hook is a built-in React hook that allows you to memoize the result of a function. This means that the function will only be re-executed when one of its dependencies changes. The primary purpose of `useMemo` is to optimize performance by preventing unnecessary recalculations.
+
+### Syntax
+
+The syntax for `useMemo` is as follows:
+
+```javascript
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+```
+
+- The first argument is a function that returns the value you want to memoize.
+- The second argument is an array of dependencies. The memoized value will only be recomputed when one of these dependencies changes.
+
+### When should it be used?
+
+#### Expensive calculations
+
+If you have a function that performs a computationally expensive calculation, you can use `useMemo` to ensure that this calculation is only performed when necessary.
+
+```javascript
+const expensiveCalculation = (num) => {
+  // Some expensive calculation
+  return num * 2;
+};
+
+const MyComponent = ({ number }) => {
+  const memoizedValue = useMemo(() => expensiveCalculation(number), [number]);
+
+  return <div>{memoizedValue}</div>;
+};
+```
+
+#### Avoiding unnecessary renders
+
+`useMemo` can also be useful for avoiding unnecessary renders of child components. If a child component depends on a value that is expensive to compute, you can use `useMemo` to ensure that the value is only recomputed when necessary.
+
+```javascript
+const MyComponent = ({ items }) => {
+  const sortedItems = useMemo(() => {
+    return items.sort((a, b) => a - b);
+  }, [items]);
+
+  return <ChildComponent sortedItems={sortedItems} />;
+};
+```
+
+### Caveats/Notes
+
+- **Overuse**: Overusing `useMemo` can lead to more complex code without significant performance benefits. It should be used judiciously.
+- **Dependencies**: Make sure to correctly specify all dependencies. Missing dependencies can lead to stale values, while extra dependencies can lead to unnecessary recalculations.
+
+**useRef**
+
+The `useRef` hook in React is used to create a mutable object that persists across renders. It can be used to access and manipulate DOM elements directly, store mutable values that do not cause re-renders when updated, and keep a reference to a value without triggering a re-render. For example, you can use `useRef` to focus an input element:
+
+```javascript
+import React, { useRef, useEffect } from 'react';
+
+function TextInputWithFocusButton() {
+  const inputEl = useRef(null);
+
+  useEffect(() => {
+    inputEl.current.focus();
+  }, []);
+
+  return <input ref={inputEl} type="text" />;
+}
+```
+
+---
+
+## What is the `useRef` hook in React and when should it be used?
+
+### Introduction to `useRef`
+
+The `useRef` hook in React is a function that returns a mutable `ref` object whose `.current` property is initialized to the passed argument (`initialValue`). The returned object will persist for the full lifetime of the component.
+
+### Key use cases for `useRef`
+
+#### Accessing and manipulating DOM elements
+
+One of the primary use cases for `useRef` is to directly access and manipulate DOM elements. This is particularly useful when you need to interact with the DOM in ways that are not easily achievable through React's declarative approach.
+
+Example:
+
+```javascript
+import React, { useRef, useEffect } from 'react';
+
+function TextInputWithFocusButton() {
+  const inputEl = useRef(null);
+
+  useEffect(() => {
+    inputEl.current.focus();
+  }, []);
+
+  return <input ref={inputEl} type="text" />;
+}
+```
+
+In this example, the `useRef` hook is used to create a reference to the input element, and the `useEffect` hook is used to focus the input element when the component mounts.
+
+#### Storing mutable values
+
+`useRef` can also be used to store mutable values that do not cause a re-render when updated. This is useful for keeping track of values that change over time but do not need to trigger a re-render.
+
+Example:
+
+```javascript
+import React, { useRef } from 'react';
+
+function Timer() {
+  const count = useRef(0);
+
+  const increment = () => {
+    count.current += 1;
+    console.log(count.current);
+  };
+
+  return <button onClick={increment}>Increment</button>;
+}
+```
+
+In this example, the `count` variable is stored in a `useRef` object, and its value is incremented without causing the component to re-render.
+
+#### Keeping a reference to a value
+
+`useRef` can be used to keep a reference to a value without triggering a re-render. This is useful for storing values that need to persist across renders but do not need to cause a re-render when they change.
+
+Example:
+
+```javascript
+import React, { useRef, useState, useEffect } from 'react';
+
+function Example() {
+  const [count, setCount] = useState(0);
+  const prevCountRef = useRef();
+
+  useEffect(() => {
+    prevCountRef.current = count;
+  }, [count]);
+
+  return (
+    <div>
+      <h1>Now: {count}</h1>
+      <h2>Before: {prevCountRef.current}</h2>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+    </div>
+  );
+}
+```
+
+In this example, `prevCountRef` is used to keep a reference to the previous value of `count` without causing a re-render.
+
+**useCallback**
+The `useCallback` hook in React is used to memoize functions, preventing them from being recreated on every render. This is particularly useful when passing callbacks to optimized child components that rely on reference equality to prevent unnecessary renders. You should use `useCallback` when you have a function that is passed as a prop to a child component and you want to avoid the child component re-rendering unnecessarily.
+
+```javascript
+const memoizedCallback = useCallback(() => {
+  doSomething(a, b);
+}, [a, b]);
+```
+
+---
+
+## What is the `useCallback` hook in React and when should it be used?
+
+### What is `useCallback`?
+
+The `useCallback` hook is a React hook that returns a memoized version of the callback function that only changes if one of the dependencies has changed. It is useful for optimizing performance by preventing unnecessary re-creations of functions.
+
+### Syntax
+
+```javascript
+const memoizedCallback = useCallback(() => {
+  doSomething(a, b);
+}, [a, b]);
+```
+
+### When should `useCallback` be used?
+
+#### Preventing unnecessary re-renders
+
+When you pass a function as a prop to a child component, the child component may re-render every time the parent component re-renders, even if the function itself hasn't changed. Using `useCallback` ensures that the function reference remains the same as long as its dependencies haven't changed, thus preventing unnecessary re-renders.
+
+```javascript
+const ParentComponent = () => {
+  const [count, setCount] = useState(0);
+
+  const handleClick = useCallback(() => {
+    setCount(count + 1);
+  }, [count]);
+
+  return <ChildComponent onClick={handleClick} />;
+};
+
+const ChildComponent = React.memo(({ onClick }) => {
+  console.log('ChildComponent rendered');
+  return <button onClick={onClick}>Click me</button>;
+});
+```
+
+#### Optimizing performance
+
+In complex applications, re-creating functions on every render can be costly in terms of performance. By using `useCallback`, you can avoid this overhead and make your application more efficient.
+
+### Caveats/Notes
+
+- **Overuse**: Overusing `useCallback` can lead to more complex code and may not always result in performance improvements. It should be used judiciously.
+- **Dependencies**: Ensure that all dependencies are correctly specified in the dependency array. Missing dependencies can lead to stale closures and bugs.
+
+**useReducer**
+The `useReducer` hook in React is used for managing complex state logic in functional components. It is an alternative to `useState` and is particularly useful when the state has multiple sub-values or when the next state depends on the previous one. It takes a reducer function and an initial state as arguments and returns the current state and a dispatch function.
+
+```javascript
+const [state, dispatch] = useReducer(reducer, initialState);
+```
+
+Use `useReducer` when you have complex state logic that involves multiple sub-values or when the next state depends on the previous state.
+
+---
+
+## What is the `useReducer` hook in React and when should it be used?
+
+### Introduction to `useReducer`
+
+The `useReducer` hook is a React hook that is used for managing state in functional components. It is an alternative to the `useState` hook and is particularly useful for managing more complex state logic. The `useReducer` hook is similar to the `reduce` function in JavaScript arrays, where you have a reducer function that determines how the state should change in response to actions.
+
+### Syntax
+
+The `useReducer` hook takes two arguments: a reducer function and an initial state. It returns an array with the current state and a dispatch function.
+
+```javascript
+const [state, dispatch] = useReducer(reducer, initialState);
+```
+
+### Reducer function
+
+The reducer function is a pure function that takes the current state and an action as arguments and returns the new state. The action is an object that typically has a `type` property and an optional `payload`.
+
+```javascript
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return { count: state.count + 1 };
+    case 'decrement':
+      return { count: state.count - 1 };
+    default:
+      throw new Error();
+  }
+}
+```
+
+### Example usage
+
+Here is a simple example of using `useReducer` to manage a counter state:
+
+```javascript
+import React, { useReducer } from 'react';
+
+const initialState = { count: 0 };
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return { count: state.count + 1 };
+    case 'decrement':
+      return { count: state.count - 1 };
+    default:
+      throw new Error();
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <div>
+      <p>Count: {state.count}</p>
+      <button onClick={() => dispatch({ type: 'increment' })}>Increment</button>
+      <button onClick={() => dispatch({ type: 'decrement' })}>Decrement</button>
+    </div>
+  );
+}
+
+export default Counter;
+```
+
+### When to use `useReducer`
+
+- **Complex state logic**: Use `useReducer` when you have complex state logic that involves multiple sub-values or when the next state depends on the previous state.
+- **State management**: It is useful when you need a more predictable state management pattern, similar to Redux.
+- **Performance optimization**: `useReducer` can help optimize performance in certain scenarios by avoiding unnecessary re-renders.
