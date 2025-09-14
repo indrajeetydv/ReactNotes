@@ -748,3 +748,127 @@ In this example:
 
 - **Functional components only**: `forwardRef()` is used with functional components. Class components can directly use refs without `forwardRef()`.
 - **Ref forwarding**: Ensure that the ref is forwarded to a DOM element or a class component instance, not another functional component.
+
+### Higher Order Component
+
+Higher order components (HOCs) in React are functions that take a component and return a new component with additional props or behavior. They are used to reuse component logic. For example, if you have a component `MyComponent`, you can create an HOC like this:
+
+```javascript
+const withExtraProps = (WrappedComponent) => {
+  return (props) => <WrappedComponent {...props} extraProp="value" />;
+};
+
+const EnhancedComponent = withExtraProps(MyComponent);
+```
+
+---
+
+## What are higher order components in React?
+
+### Definition
+
+Higher order components (HOCs) are functions in React that take a component as an argument and return a new component. The new component typically wraps the original component and adds additional props, state, or behavior. HOCs are a pattern for reusing component logic.
+
+### Purpose
+
+HOCs are used to:
+
+- Share common functionality between components
+- Abstract and reuse component logic
+- Enhance components with additional props or state
+
+### Example
+
+Here is a simple example of an HOC that adds an `extraProp` to a wrapped component:
+
+```javascript
+import React from 'react';
+
+// Define the HOC
+const withExtraProps = (WrappedComponent) => {
+  return (props) => {
+    return <WrappedComponent {...props} extraProp="value" />;
+  };
+};
+
+// Define a component to be wrapped
+const MyComponent = (props) => {
+  return <div>{props.extraProp}</div>;
+};
+
+// Wrap the component using the HOC
+const EnhancedComponent = withExtraProps(MyComponent);
+
+// Use the enhanced component
+const App = () => {
+  return <EnhancedComponent />;
+};
+
+export default App;
+```
+
+In this example, `withExtraProps` is an HOC that adds an `extraProp` to `MyComponent`. The `EnhancedComponent` now has access to `extraProp`.
+
+### Common use cases
+
+- **Authentication**: Wrapping components to check if a user is authenticated before rendering.
+- **Logging**: Adding logging functionality to components.
+- **Theming**: Injecting theme-related props into components.
+- **Data fetching**: Fetching data and passing it as props to components.
+
+### Best practices
+
+- **Do not mutate the original component**: Always return a new component.
+- **Use HOCs sparingly**: Overusing HOCs can make the code harder to understand.
+- **Name the HOC properly**: Use a descriptive name that indicates what the HOC does.
+
+### Alternatives
+
+- **Render props**: A pattern where a component uses a function as a prop to determine what to render.
+- **Hooks**: Custom hooks can be used to share logic between functional components.
+
+### Custom Hook
+
+- Custom hooks in React allow you to extract reusable logic from components while maintaining state and side effects using built-in hooks like useState, useEffect, useMemo, and others.
+
+- They follow the same rules as React hooks but enable better code reuse, abstraction, and separation of concerns in a clean and maintainable way.
+
+1. Code reusability: Instead of duplicating logic across components, a custom Hook encapsulates the logic and makes it reusable
+2. Separation of concerns: Components should focus on UI rendering, while custom hooks handle logic (state management, fetching data, event listeners, etc.)
+3. Cleaner & more readable components: Extracting logic into a Hook makes components less cluttered and more focused on presentation
+4. Encapsulation of side effects: Custom hooks allow managing side effects (like API calls) separately, making debugging and testing easier
+
+A custom hook:
+
+Is a JavaScript function that starts with use (e.g., useCounter, useFetch)
+Must call other React hooks (e.g., useState, useEffect). If a custom hook does not call any React hooks, then it doesn't need to be a hook
+Keep them focused – one purpose per hook
+Optionally, returns state or functions that components can use
+
+```javascript
+import { useState } from 'react';
+
+function useCounter(initialValue = 0) {
+  const [count, setCount] = useState(initialValue);
+
+  const increment = () => setCount(count + 1);
+  const decrement = () => setCount(count - 1);
+  const reset = () => setCount(initialValue);
+
+  return { count, increment, decrement, reset };
+}
+
+function CounterComponent() {
+  const { count, increment, decrement, reset } = useCounter(10);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+      <button onClick={reset}>Reset</button>
+    </div>
+  );
+}
+
+```
